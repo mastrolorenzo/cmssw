@@ -61,7 +61,7 @@ private:
     edm::ESHandle<CaloGeometry> geoHandle_;
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle_; 
     edm::ESHandle<HGCalGeometry> hgchefGeoHandle_; 
-    edm::ESHandle<HGCalGeometry> hgchebGeoHandle_; 
+//     edm::ESHandle<HGCalGeometry> hgchebGeoHandle_; 
 
     bool debug_;
    
@@ -87,7 +87,7 @@ HydraProducer::HydraProducer( const ParameterSet &iConfig ) :
     for( const auto& tag : inputRecHits_ ) {
         consumes<View<PFRecHit> >(tag);
     }
-    debug_ = iConfig.getUntrackedParameter<bool>("Debug",true);
+    debug_ = iConfig.getUntrackedParameter<bool>("Debug",false);
 
     produces<std::vector<Hydra> >();
 }
@@ -96,7 +96,7 @@ void HydraProducer::beginLuminosityBlock( LuminosityBlock const& iLumiBlock, con
     iSetup.get<CaloGeometryRecord>().get(geoHandle_);
     iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle_) ; 
     iSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle_) ; 
-    iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",hgchebGeoHandle_) ; 
+    //iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",hgchebGeoHandle_) ; 
 }
 
 void HydraProducer::produce( Event &iEvent, const EventSetup & )
@@ -148,9 +148,9 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
             case HGCHEF:
                 geom = hgchefGeoHandle_.product();
                 break;
-            case HGCHEB:
-                geom = hgchebGeoHandle_.product();
-                break;
+//             case HGCHEB:
+//                 geom = hgchebGeoHandle_.product();
+//                 break;
             default:
                 throw cms::Exception("InvalidDetector")
                     << "Got invalid HGC subdet: " << mysubdet;
@@ -161,25 +161,84 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
             int layer, cell, sec, subsec, zp;
             uint32_t intSimId = simId.rawId();
             uint32_t recoDetId = 0;
+//             if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+//                 HGCalTestNumbering::unpackSquareIndex(intSimId, zp, layer, sec, subsec, cell);
+//                 if(!HGCalTestNumbering::isValidSquare(zp, layer, sec, subsec, layer)) {
+//                     throw cms::Exception("BadGeometry") << "Sim DetID -> Reco DetID transform was invalid!";
+//                 }
+//                 recoDetId = ( ( geom == hgceeGeoHandle_.product() ) ?
+//                               (uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell) :
+//                               (uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell)
+//                               );
+//             } else {
+//                 //HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+//                 //sec is wafer and subsec is celltype
+//                 recoDetId = 0;
+//                 throw cms::Exception("NotSupported") << "Hex-Cell HGCal not-yet supported in HyDRA!";
+//             }
+//
+//
+
             if (dddConst.geomMode() == HGCalGeometryMode::Square) {
-                HGCalTestNumbering::unpackSquareIndex(intSimId, zp, layer, sec, subsec, cell);
-                if(!HGCalTestNumbering::isValidSquare(zp, layer, sec, subsec, layer)) {
-                    throw cms::Exception("BadGeometry") << "Sim DetID -> Reco DetID transform was invalid!";
-                }
-                recoDetId = ( ( geom == hgceeGeoHandle_.product() ) ?
-                              (uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell) :
-                              (uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell)
-                              );
+				HGCalTestNumbering::unpackSquareIndex(intSimId, zp, layer, sec, subsec, cell);
+				if(!HGCalTestNumbering::isValidSquare(zp, layer, sec, subsec, layer)) {
+					throw cms::Exception("BadGeometry") << "Sim DetID -> Reco DetID transform was invalid!";
+				}
             } else {
-                //HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
-                //sec is wafer and subsec is celltype
-                recoDetId = 0;
-                throw cms::Exception("NotSupported") << "Hex-Cell HGCal not-yet supported in HyDRA!";
+              int subdet;
+              HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+              mysubdet = (ForwardSubdetector)(subdet);
+              //sec is wafer and subsec is celltyp
             }
-                        
-            reco_detIds.insert(recoDetId);
+            //skip this hit if after ganging it is not valid
+            std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
+            cell  = recoLayerCell.first;
+            layer = recoLayerCell.second;
+            if (layer<0 || cell<0) {
+              //hitRefs[i]=std::make_tuple( i, 0, 0.);
+              continue;
+            }
+
+            //assign the RECO DetId
+            DetId id;
+            if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+				recoDetId = ( ( geom == hgceeGeoHandle_.product() ) ?
+					(uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell) :
+					(uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell)
+				);
+            } else {
+              recoDetId = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
+            }
+
+
+
+
+
+// 
+// 			if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+//                 HGCalTestNumbering::unpackSquareIndex(intSimId, zp, layer, sec, subsec, cell);
+//                 std::cout << "SQUARE" << std::endl;
+//                 if(!HGCalTestNumbering::isValidSquare(zp, layer, sec, subsec, layer)){
+//                     throw cms::Exception("BadGeometry") << "Sim DetID -> Reco DetID transform was invalid!";
+//                 }
+//                 recoDetId = ( ( geom == hgceeGeoHandle_.product() ) ?
+//                               (uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell) :
+//                               (uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell)
+//                               );
+//             }else{
+//                 std::cout << "Hexagonal" << std::endl;
+//                 //sec is wafer and subsec is celltype
+//                 int subdet;
+//                 HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+//       			mysubdet = (ForwardSubdetector)(subdet);
+// 				recoDetId = (uint32_t)HGCalDetId(ForwardSubdetector(mysubdet),zp,layer,sec,subsec,cell);
+//                              
+//             }                      
+            reco_detIds.insert(recoDetId); //unordered set with the detId values or the recHit
             temp_recoDetIdToSimHit.emplace(recoDetId,make_tuple(i,j,0.0f));
-            std::cout << " Inserted simHit from detector " << i << " in layer " << layer << std::endl;
+            unordered_multimap<uint32_t,tuple<unsigned,unsigned,float> >::const_iterator it;
+            if (debug_)std::cout << " Inserted simHit from detector " << i << " cobined with recHit "<< j <<" recoDetId = " << recoDetId << " in layer " << layer << std::endl;
+
         }
     }
 
@@ -219,15 +278,15 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
     }
     for( unsigned i = 0; i < recHits.size(); ++i ) {
         for( unsigned j = 0; j < recHits[i]->size(); ++j ) {
-            std::cout << " i=" << i << " j=" << j << " detId=" << recHits[i]->ptrAt(j)->detId() << " subdet=" << (ForwardSubdetector)(i+3) << std::endl;
+            if (debug_)std::cout << " i=" << i << " j=" << j << " detId=" << recHits[i]->ptrAt(j)->detId() << " subdet=" << (ForwardSubdetector)(i+3) << std::endl;
             unsigned int layer = 999;
             try {
                 DetId hitid(recHits[i]->ptrAt(j)->detId());
                 layer = GetHGCLayer( hitid, (ForwardSubdetector)hitid.subdetId() );
             } catch ( const cms::Exception& e ) {
-                std::cout << "   caught exception " << e.what() << " but moving on" << std::endl;
+                if (debug_)std::cout << "   caught exception " << e.what() << " but moving on" << std::endl;
             }
-            std::cout << " Inserted recHit from detector " << i << " in layer " << layer << std::endl;
+            if (debug_)std::cout << " Inserted recHit from detector " << i << " in layer " << layer << std::endl;
             output->back().insertRecHit(i,recHits[i]->ptrAt(j));
         }
     }
@@ -251,21 +310,29 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
 
     iEvent.put( output );
 }
+// 
+// unsigned int HydraProducer::GetHGCLayer(const DetId& detid, const ForwardSubdetector& subdet) const {
+//     unsigned int layer = 0;
+//     if(subdet==ForwardSubdetector::HGCEE) {
+//         layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
+//     }
+//     else if(subdet==ForwardSubdetector::HGCHEF){
+//         layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+//     }
+//     else if(subdet==ForwardSubdetector::HGCHEB){
+//         layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+//     }
+//     return layer;
+// }
+
 
 unsigned int HydraProducer::GetHGCLayer(const DetId& detid, const ForwardSubdetector& subdet) const {
     unsigned int layer = 0;
-    if(subdet==ForwardSubdetector::HGCEE) {
-        layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
-    }
-    else if(subdet==ForwardSubdetector::HGCHEF){
-        layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
-    }
-    else if(subdet==ForwardSubdetector::HGCHEB){
-        layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
-    }
+	
+    layer = (unsigned int) ((HGCalDetId)(detid)).layer() ;
+	
     return layer;
 }
-
 
 DEFINE_FWK_MODULE( HydraProducer );
 

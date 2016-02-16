@@ -11,8 +11,10 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023DevReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -97,7 +99,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
         MaxPt = cms.double(35.0),
         MinPt = cms.double(35.0),
-        PartID = cms.vint32(13),
+        PartID = cms.vint32(11),
         MaxEta = cms.double(2.9),
         MaxPhi = cms.double(3.14159265359),
         MinEta = cms.double(1.6),
