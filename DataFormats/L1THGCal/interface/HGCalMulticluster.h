@@ -4,34 +4,37 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
     public:
         
-        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
-        typedef edm::PtrVector<l1t::HGCalCluster>  ClusterCollection;
-
+        //      typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
+        //      typedef edm::PtrVector<l1t::HGCalCluster>  ClusterCollection;
+        //typedef std::unique_ptr<l1t::HGCalClusterBxCollection> ClusterCollection;
         HGCalMulticluster(){}
         HGCalMulticluster( const LorentzVector p4,
                            int pt,
                            int eta,
-                           int phi,
-                           ClusterCollection &thecls
+                           int phi
+//                           ClusterCollection &thecls
             );
 
         ~HGCalMulticluster();
         
-        void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
-            myclusters.push_back(b);
-        }
+        // void push_back(const edm::Ptr<l1t::HGCalCluster> &b){ 
+            //void push_back(const l1t::HGCalCluster b) {
+            //clusters_.push_back(b);
+            //}
   
-        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return myclusters; }
-        
-        unsigned int size() const { return myclusters.size(); }  
-        component_iterator begin() const { return myclusters.begin(); }
-        component_iterator end() const { return myclusters.end(); }
+        //  const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return clusters_; }
+//        const std::unique_ptr<l1t::HGCalClusterBxCollection>& clusters() const { return clusters_; }
+//        unsigned int size() const { return clusters_.size(); }  
+//        component_iterator begin() const { return clusters_.begin(); }
+//        component_iterator end() const { return clusters_.end(); }
         
         void setHwPtEm  (uint32_t pt)    {hwPtEm_= pt;}
         void setHwPtHad (uint32_t pt)    {hwPtHad_ = pt;}
@@ -56,8 +59,8 @@ namespace l1t {
         bool operator>=(const HGCalMulticluster& cl) const {return !(cl<*this);};
         
     private:
-        edm::PtrVector<l1t::HGCalCluster>  myclusters;
-
+//        edm::PtrVector<l1t::HGCalCluster>  clusters_;
+//        std::unique_ptr<l1t::HGCalClusterBxCollection>  clusters_;
         // Energies
         uint32_t hwPtEm_;
         uint32_t hwPtHad_;
