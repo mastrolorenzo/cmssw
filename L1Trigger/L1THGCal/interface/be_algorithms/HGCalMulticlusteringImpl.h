@@ -15,8 +15,8 @@ class HGCalMulticlusteringImpl{
 public:
 
     HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
-    void clusterise( std::unique_ptr<l1t::HGCalClusterBxCollection>& clusters_, 
-                     std::unique_ptr<l1t::HGCalMulticlusterBxCollection>& multiclusters_);
+    void clusterise( const l1t::HGCalClusterBxCollection & clusters_, 
+                     l1t::HGCalMulticlusterBxCollection & multiclusters_);
  
 private:
     
