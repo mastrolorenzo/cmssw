@@ -8,7 +8,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class HGCalClusteringImpl{
 
