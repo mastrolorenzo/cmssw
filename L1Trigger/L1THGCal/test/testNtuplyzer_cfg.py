@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        'file:./crab/SinglePhoton/l1tpg_gsdr.root'
+        'file:./testGenOnly.root'
         )
 )
 
@@ -72,14 +72,14 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
-                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
-                                        )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives ) 
+process.digi2raw_step = cms.Path( process.DigiToRaw )
+#process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
+#                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
+#                                        )
 
-process.test_step = cms.Path(process.HGC_clustering)
+#process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
@@ -91,7 +91,7 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 process.schedule = cms.Schedule( process.hgcl1tpg_step, 
                                  #process.digi2raw_step, 
                                  #process.test_step, 
-                                 process.ntuple_step,
+                                 process.ntuple_step, # create the persistent event 
                                  process.endjob_step
                                  )
 
