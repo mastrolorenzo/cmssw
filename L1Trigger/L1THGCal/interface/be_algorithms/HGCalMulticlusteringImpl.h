@@ -2,9 +2,10 @@
 #define __L1Trigger_L1THGCal_HGCalMulticlusteringImpl_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 class HGCalMulticlusteringImpl{
 
@@ -23,7 +24,7 @@ private:
     
     double dr_;
     double ptC3dThreshold_;
-    double calibSF_;
+
 };
 
 #endif

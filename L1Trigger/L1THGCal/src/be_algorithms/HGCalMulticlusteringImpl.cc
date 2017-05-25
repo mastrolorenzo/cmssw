@@ -4,13 +4,10 @@
 
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
-    ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-    calibSF_(conf.getParameter<double>("calibSF_multicluster"))
+    ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster global calibration factor: " << calibSF_;
-
 }
 
 
@@ -70,12 +67,6 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
 
     /* making the collection of multiclusters */
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-        math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt() * calibSF_, 
-                                               multiclustersTmp.at(i).eta(), 
-                                               multiclustersTmp.at(i).phi(), 
-                                               0. );
-        // overwriting the 4p with the calibrated 4p     
-        multiclustersTmp.at(i).setP4( calibP4 );
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }

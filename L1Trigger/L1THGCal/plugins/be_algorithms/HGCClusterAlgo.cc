@@ -7,6 +7,7 @@
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusterCalibration.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"    
 
@@ -34,12 +35,14 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         Algorithm<FECODEC>(conf, cc),
         trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
+        raw_multicluster_product_( new l1t::HGCalMulticlusterBxCollection ),
         multicluster_product_( new l1t::HGCalMulticlusterBxCollection ),
         HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
         HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) )
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) ), 
+        multiclusterCalibration_( conf.getParameterSet("multiclustercalib_parameters") )
         {
             std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(type=="dRC2d"){
@@ -74,7 +77,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         {
             trgcell_product_.reset( new l1t::HGCalTriggerCellBxCollection );            
             cluster_product_.reset( new l1t::HGCalClusterBxCollection );
-            multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
+            raw_multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
+            multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );            
         }
 
     
@@ -83,6 +87,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         /* pointers to collections of trigger-cells, clusters and multiclusters */
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> trgcell_product_;
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
+        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> raw_multicluster_product_;
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
     
         /* lables of sensitive detector (geometry record) */
@@ -98,6 +103,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalTriggerCellCalibration calibration_;
         HGCalClusteringImpl clustering_;
         HGCalMulticlusteringImpl multiclustering_;
+        HGCalMulticlusterCalibration multiclusterCalibration_;
 
         /* algorithm type */
         ClusterType clusteringAlgorithmType_;
@@ -183,7 +189,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
 
-    /* create a persistent vector of pointers to the trigger-cells */
+    /* create a persistent vector of pointers to the clusters */
     edm::PtrVector<l1t::HGCalCluster> clustersPtrs;
     for( unsigned i = 0; i < clustersHandle->size(); ++i ) {
         edm::Ptr<l1t::HGCalCluster> ptr(clustersHandle,i);
@@ -191,7 +197,14 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to multiclustering */
-    multiclustering_.clusterize( clustersPtrs, *multicluster_product_ );
+    multiclustering_.clusterize( clustersPtrs, *raw_multicluster_product_ );
+
+    /* multicluster-calibration */
+    for( auto& multicluster : *raw_multicluster_product_ ){
+        l1t::HGCalMulticluster calibratedMulticluster( multicluster );
+        multiclusterCalibration_.calibrateC3d( calibratedMulticluster );        
+        multicluster_product_->push_back( 0, calibratedMulticluster );
+    }
 
     /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
     multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");

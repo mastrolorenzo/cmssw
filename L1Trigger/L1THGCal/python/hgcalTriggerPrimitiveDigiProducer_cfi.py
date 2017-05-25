@@ -41,6 +41,9 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( triggerCellLsbBeforeCompressi
                              dEdXweights = layerWeights,
                              thickCorr = thicknessCorrection
                             )
+
+multiclusterCalib_parValues = cms.PSet( calibSF_multicluster = cms.double(1.084) )
+
 C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
                           clustering_threshold = cms.double(2), # MipT
                           dR_cluster = cms.double(3.), # in cm
@@ -48,17 +51,19 @@ C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
                           )
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
-                          minPt_multicluster = cms.double(0.0), # minimum pt of the multicluster
-                          calibSF_multicluster = cms.double(1.084)
+                          minPt_multicluster = cms.double(0.0) # minimum pt of the multicluster                          
                           )
+
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                           HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                           calib_parameters = calib_parValues.clone(),
+                          multiclustercalib_parameters = multiclusterCalib_parValues.clone(),
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
                           )
+print cluster_algo
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",
