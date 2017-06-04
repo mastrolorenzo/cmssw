@@ -27,10 +27,10 @@ supportedBtagInfos = [
     # C-Tagging tag infos
   , 'pfInclusiveSecondaryVertexFinderCvsLTagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos'
-		# DeepFlavour	
-	, 'deepNNTagInfos'
-	, 'deepNNNegativeTagInfos'
-	, 'deepNNPositiveTagInfos'
+    # DeepFlavour	
+  , 'deepNNTagInfos'
+  , 'deepNNNegativeTagInfos'
+  , 'deepNNPositiveTagInfos'
     # TopTagInfos (unrelated to b tagging)
   , 'caTopTagInfos'
   ]
@@ -130,7 +130,7 @@ supportedBtagDiscr = {
   , 'pfCombinedCvsBJetTags'                                 : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
   , 'pfNegativeCombinedCvsBJetTags'                         : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
   , 'pfPositiveCombinedCvsBJetTags'                         : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
-		# DeepFlavour
+    # DeepFlavour
   , 'deepFlavourJetTags:probudsg'                           : [['deepNNTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'deepFlavourJetTags:probb'                              : [['deepNNTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'deepFlavourJetTags:probc'                              : [['deepNNTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]

@@ -58,7 +58,7 @@ pfBTagging = cms.Sequence(
         pfInclusiveSecondaryVertexFinderTagInfos *
         pfSimpleInclusiveSecondaryVertexHighEffBJetTags *
         pfCombinedInclusiveSecondaryVertexV2BJetTags *
-				pfDeepFlavour
+        pfDeepFlavour
 				
       ) +
 
