@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# coefficient evaluated from SinglePhoton pT=50 GeV considering all the layers in EE
 dEdX_weights = cms.vdouble(0.0,
                            0.0158115,
                            0.0150911,
@@ -43,7 +44,7 @@ dEdX_weights = cms.vdouble(0.0,
                            0.
                            )
 
-
+# coefficient evaluated from SinglePhoton pT=50 GeV considering only the trigger layer (i.e. only odd layer numbers in EE)
 dEdX_weights_trgLayer = cms.vdouble(0.0,
                                     0.0183664,
                                     0.,
@@ -87,7 +88,8 @@ dEdX_weights_trgLayer = cms.vdouble(0.0,
                                     0.,
                                     0.
                                     )
-#From SinglePion pT=50 GeV
+
+# coefficient evaluated from SinglePion pT=50 GeV considering all the layers
 dEdx_weights_hadron = cms.vdouble(0.0,
                                   0.030774,
                                   0.0222183,
@@ -131,7 +133,53 @@ dEdx_weights_hadron = cms.vdouble(0.0,
                                   0.233339
                                   )
 
-#From SinglePion pT=20 GeV
+
+# coefficient evaluated from SinglePion pT=50 GeV considering only the trigger layer (i.e. only odd layer numbers in EE + all layers in the FH)
+dEdX_weights_hadrons_trgLayer = cms.vdouble(0.0,
+                                   0.0398721,
+                                   0.,
+                                   0.096048,
+                                   0.,
+                                   0.0800138,
+                                   0.,
+                                   0.0459438,
+                                   0.,
+                                   0.0125788,
+                                   0.,
+                                   0.00736786,
+                                   0.,
+                                   0.0142515,
+                                   0.,
+                                   0.0368964,
+                                   0.,
+                                   0.0381923,
+                                   0.,
+                                   0.0189196,
+                                   0.,
+                                   0.0446335,
+                                   0.,
+                                   0.0388062,
+                                   0.,
+                                   0.042066,
+                                   0.,
+                                   0.0304025,
+                                   0.0456096,
+                                   0.0678159,
+                                   0.108399,
+                                   0.105739,
+                                   0.0651398,
+                                   0.127217,
+                                   0.0833317,
+                                   0.0976129,
+                                   0.155841,
+                                   0.0565189,
+                                   0.119126,
+                                   0.239373
+                                   )
+
+
+
+# coefficient evaluated from SinglePion pT=20 GeV considering all the layers
 #dEdx_weights_hadron = cms.vdouble(0.0,
 #                                  0.0444183,
 #                                  0.0235909,
@@ -175,6 +223,8 @@ dEdx_weights_hadron = cms.vdouble(0.0,
 #                                  0.15873                               
 #)
 
+# coefficient evaluated from SinglePion pT=50 GeV considering all the layers 
+# relaxing also the TE (clusterization) threshold down to 1 transverse-mip
 dEdx_weights_hadron_se5te1 = cms.vdouble(0.0,
                                          0.027708,
                                          0.0260267,
@@ -218,44 +268,3 @@ dEdx_weights_hadron_se5te1 = cms.vdouble(0.0,
                                          0.256982
                                          )
 
-dEdX_weights_hadrons_trgLayer = cms.vdouble(0.0,
-                                   0.0398721,
-                                   0.,
-                                   0.096048,
-                                   0.,
-                                   0.0800138,
-                                   0.,
-                                   0.0459438,
-                                   0.,
-                                   0.0125788,
-                                   0.,
-                                   0.00736786,
-                                   0.,
-                                   0.0142515,
-                                   0.,
-                                   0.0368964,
-                                   0.,
-                                   0.0381923,
-                                   0.,
-                                   0.0189196,
-                                   0.,
-                                   0.0446335,
-                                   0.,
-                                   0.0388062,
-                                   0.,
-                                   0.042066,
-                                   0.,
-                                   0.0304025,
-                                   0.0456096,
-                                   0.0678159,
-                                   0.108399,
-                                   0.105739,
-                                   0.0651398,
-                                   0.127217,
-                                   0.0833317,
-                                   0.0976129,
-                                   0.155841,
-                                   0.0565189,
-                                   0.119126,
-                                   0.239373
-                                   )
