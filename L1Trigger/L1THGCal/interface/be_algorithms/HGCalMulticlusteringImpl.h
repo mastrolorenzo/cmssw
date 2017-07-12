@@ -24,6 +24,7 @@ private:
     double dr_;
     double ptC3dThreshold_;
     double calibSF_;
+    std::vector<double> dEdX_;
 };
 
 #endif
