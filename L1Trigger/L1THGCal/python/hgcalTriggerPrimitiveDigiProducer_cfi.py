@@ -51,7 +51,7 @@ C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           calibSF_multicluster = cms.double(1.084),
-                          calibCoeffMtx = matrixcalibcoeff.dEdx_weights_hadron_se5te1
+                          calibCoeffMtx = matrixcalibcoeff.dEdx_weights
                           )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
