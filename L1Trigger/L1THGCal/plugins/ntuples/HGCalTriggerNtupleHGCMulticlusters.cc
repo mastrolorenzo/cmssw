@@ -35,6 +35,26 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_xN_;
     std::vector<float> cl3d_yN_;
     std::vector<int> cl3d_nclu_;
+
+    std::vector<int> cl3d_C2dLayer1stMaxE_;
+    std::vector<int> cl3d_C2dLayer2ndMaxE_;
+    std::vector<int> cl3d_C2dLayer3rdMaxE_;
+
+    std::vector<float> cl3d_C2dEdensity_L05_;
+    std::vector<float> cl3d_C2dEdensity_L10_;
+    std::vector<float> cl3d_C2dEdensity_L15_;
+    std::vector<float> cl3d_C2dEdensity_L30_;    
+    std::vector<float> cl3d_C2dEdensity_L35_;
+
+    std::vector<float> cl3d_C2dMipTdensity_L05_;
+    std::vector<float> cl3d_C2dMipTdensity_L10_;
+    std::vector<float> cl3d_C2dMipTdensity_L15_;
+    std::vector<float> cl3d_C2dMipTdensity_L30_;    
+    std::vector<float> cl3d_C2dMipTdensity_L35_;
+
+    std::vector< std::vector<float> > cl3d_C2dEdensities_;
+    std::vector< std::vector<float> > cl3d_C2dMipTdensities_;
+
     std::vector<int> cl3d_firstC2dLayer_;
     std::vector<int> cl3d_lastC2dLayer_;
     std::vector<int> cl3ds_NxEndcap_;
@@ -78,6 +98,21 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl2d_See", &cl2d_See_);
   tree.Branch("cl3d_halfDepth", &cl3d_halfDepth_);
   tree.Branch("cl3d_pTxHalfDepth", &cl3d_pTxHalfDepth_);
+  tree.Branch("cl3d_C2dLayer1stMaxE", &cl3d_C2dLayer1stMaxE_);
+  tree.Branch("cl3d_C2dLayer2ndMaxE", &cl3d_C2dLayer2ndMaxE_);
+  tree.Branch("cl3d_C2dEdensities", &cl3d_C2dEdensities_);
+  tree.Branch("cl3d_C2dEdensity_L05", &cl3d_C2dEdensity_L05_);
+  tree.Branch("cl3d_C2dEdensity_L10", &cl3d_C2dEdensity_L10_);
+  tree.Branch("cl3d_C2dEdensity_L15", &cl3d_C2dEdensity_L15_);
+  tree.Branch("cl3d_C2dEdensity_L30", &cl3d_C2dEdensity_L30_);
+  tree.Branch("cl3d_C2dEdensity_L35", &cl3d_C2dEdensity_L35_);
+  tree.Branch("cl3d_C2dMipTdensities", &cl3d_C2dMipTdensities_);  
+  tree.Branch("cl3d_C2dMipTdensity_L05", &cl3d_C2dMipTdensity_L05_);
+  tree.Branch("cl3d_C2dMipTdensity_L10", &cl3d_C2dMipTdensity_L10_);
+  tree.Branch("cl3d_C2dMipTdensity_L15", &cl3d_C2dMipTdensity_L15_);
+  tree.Branch("cl3d_C2dMipTdensity_L30", &cl3d_C2dMipTdensity_L30_);
+  tree.Branch("cl3d_C2dMipTdensity_L35", &cl3d_C2dMipTdensity_L35_);
+
 }
 
 void
@@ -126,6 +161,12 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     std::vector<int> layerC2dSet;
     std::vector<float> mipPtC2dSet;
     std::vector<float> thiscl2d_See_;
+    std::vector<float > EdensitySet;
+    std::vector<float > MipTdensitySet;
+
+    float largest = -1.;
+    float second = -1.;
+
     for( edm::PtrVector<l1t::HGCalCluster>::const_iterator it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
         
        /* loop over the trigger cells pertinent to a cluster */    
@@ -137,7 +178,13 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             l1t::HGCalTriggerCell thistc = *triggerCells[itc];
             shape.Add(thistc.energy(),thistc.eta(),thistc.phi(),thistc.position().z());
         }
-
+        
+        if( (*it_clu)->energy() > largest) {
+            second = largest;
+            largest = (*it_clu)->energy();
+        } else if ( (*it_clu)->energy() > second) {
+            second = (*it_clu)->energy();
+        }
 
         int layerN = -1; 
         if( (*it_clu)->subdetId()==3 ){
@@ -150,14 +197,45 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         layerC2dSet.push_back(layerN);
         mipPtC2dSet.push_back( (*it_clu)->mipPt() );
         thiscl2d_See_.emplace_back(shape.SigmaEtaEta());
-        
+
+        EdensitySet.emplace_back( (*it_clu)->energy()/Ntc );
+        MipTdensitySet.emplace_back( (*it_clu)->mipPt()/Ntc );
+
+        if(layerN==5)        { 
+            cl3d_C2dEdensity_L05_.emplace_back( (*it_clu)->energy()/Ntc ); 
+            cl3d_C2dMipTdensity_L05_.emplace_back( (*it_clu)->mipPt()/Ntc ); 
+        }
+        if(layerN==10){ 
+            cl3d_C2dEdensity_L10_.emplace_back( (*it_clu)->energy()/Ntc );
+            cl3d_C2dMipTdensity_L10_.emplace_back( (*it_clu)->mipPt()/Ntc ); 
+        }
+        if(layerN==15){ 
+            cl3d_C2dEdensity_L15_.emplace_back( (*it_clu)->energy()/Ntc ); 
+            cl3d_C2dMipTdensity_L15_.emplace_back( (*it_clu)->mipPt()/Ntc ); 
+        }
+        if(layerN==30){ 
+            cl3d_C2dEdensity_L30_.emplace_back( (*it_clu)->energy()/Ntc ); 
+            cl3d_C2dMipTdensity_L30_.emplace_back( (*it_clu)->mipPt()/Ntc ); 
+        }
+        if(layerN==35){ 
+            cl3d_C2dEdensity_L35_.emplace_back( (*it_clu)->energy()/Ntc ); 
+            cl3d_C2dMipTdensity_L35_.emplace_back( (*it_clu)->mipPt()/Ntc ); 
+        }
+
     }
-    
+
+    cl3d_C2dLayer1stMaxE_.emplace_back( largest );
+    cl3d_C2dLayer2ndMaxE_.emplace_back( second );
+
     cl3d_firstC2dLayer_.emplace_back( layerC2dSet.front() );
     cl3d_lastC2dLayer_.emplace_back( layerC2dSet.back() );
+    cl3d_C2dEdensities_.emplace_back( EdensitySet );
+    cl3d_C2dMipTdensities_.emplace_back( MipTdensitySet );
+
     cl3d_cl_mipPt_.emplace_back(mipPtC2dSet);
     cl3d_cl_layer_.emplace_back(layerC2dSet);
     cl2d_See_.emplace_back(thiscl2d_See_);
+
 
     thiscl2d_See_.clear();
 
@@ -201,6 +279,22 @@ clear()
   cl2d_See_.clear();
   cl3d_halfDepth_.clear();
   cl3d_pTxHalfDepth_.clear();
+  cl3d_C2dLayer1stMaxE_.clear();
+  cl3d_C2dLayer2ndMaxE_.clear();
+  cl3d_C2dEdensities_.clear();
+  cl3d_C2dEdensity_L05_.clear();
+  cl3d_C2dEdensity_L10_.clear();
+  cl3d_C2dEdensity_L15_.clear();
+  cl3d_C2dEdensity_L30_.clear();
+  cl3d_C2dEdensity_L35_.clear();
+  cl3d_C2dMipTdensities_.clear();
+  cl3d_C2dMipTdensity_L05_.clear();
+  cl3d_C2dMipTdensity_L10_.clear();
+  cl3d_C2dMipTdensity_L15_.clear();
+  cl3d_C2dMipTdensity_L30_.clear();
+  cl3d_C2dMipTdensity_L35_.clear();
+
+
 }
 
 
