@@ -136,7 +136,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
             calibPt = multiclustersTmp.at(i).pt() * calibSF_; 
         }
 
-        math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt(), 
+        math::PtEtaPhiMLorentzVector calibP4(  calibPt, 
                                                multiclustersTmp.at(i).eta(), 
                                                multiclustersTmp.at(i).phi(), 
                                                0. );
