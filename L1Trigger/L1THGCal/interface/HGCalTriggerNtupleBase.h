@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include"TTree.h"
+#include "TTree.h"
 
 
 class HGCalTriggerNtupleBase
@@ -18,6 +18,7 @@ class HGCalTriggerNtupleBase
 
     protected:
         virtual void clear() = 0;
+
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
